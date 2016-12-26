@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "296633137847",
+    "firebase_url": "https://shopping-list-bd6f7.firebaseio.com",
+    "project_id": "shopping-list-bd6f7",
+    "storage_bucket": "shopping-list-bd6f7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:296633137847:android:2d73a9bdc0bc97ca",
+        "android_client_info": {
+          "package_name": "com.rawan.android.shoppinglist"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "296633137847-u3lhomcpqnlbhrsdp1sg3k0ahuj3pq1u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rawan.android.shoppinglist",
+            "certificate_hash": "ABF8263E265CB54285D91A15C04D007E71C57F18"
+          }
+        },
+        {
+          "client_id": "296633137847-gm7bg3uf4ng72fi0grsj6j4bbabag4tt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXRGMYKmhgTMQfZZXF_ww9Ynx1UantqOg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "296633137847-gm7bg3uf4ng72fi0grsj6j4bbabag4tt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
