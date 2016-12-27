@@ -20,6 +20,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.rawan.android.shoppinglist.R;
+import com.rawan.android.shoppinglist.model.ShoppingList;
 
 import static com.google.android.gms.internal.zzs.TAG;
 import static com.rawan.android.shoppinglist.ShoppingListApplication.database;
@@ -32,6 +33,8 @@ import static com.rawan.android.shoppinglist.ShoppingListApplication.database;
 public class ShoppingListsFragment extends Fragment {
     private ListView mListView;
     private TextView mListViewTitle;
+    private TextView mCreatedby;
+    private TextView mOwner;
 
     public ShoppingListsFragment() {
         /* Required empty public constructor */
@@ -74,7 +77,7 @@ public class ShoppingListsFragment extends Fragment {
         initializeScreen(rootView);
 
 
-        DatabaseReference myRef = database.getReference("listName");
+        DatabaseReference myRef = database.getReference("activeList");
 
         // Read from the database
         myRef.addValueEventListener(new ValueEventListener() {
@@ -82,9 +85,16 @@ public class ShoppingListsFragment extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
-                String value = dataSnapshot.getValue(String.class);
-                mListViewTitle.setText(value);
-                Log.d(TAG, "Value is: " + value);
+                ShoppingList shoppingListValue = dataSnapshot.getValue(ShoppingList.class);
+                if (shoppingListValue != null) {
+                    mListViewTitle.setText(shoppingListValue.getListName());
+                    if (shoppingListValue.getOwner() != null) {
+                        mCreatedby.setVisibility(View.VISIBLE);
+                        mOwner.setText(shoppingListValue.getOwner());
+                    }
+                }
+
+                Log.d(TAG, "Value is: " + shoppingListValue);
             }
 
             @Override
@@ -93,7 +103,6 @@ public class ShoppingListsFragment extends Fragment {
                 Log.w(TAG, "Failed to read value.", error.toException());
             }
         });
-
 
 
         /**
@@ -121,5 +130,7 @@ public class ShoppingListsFragment extends Fragment {
     private void initializeScreen(View rootView) {
         mListView = (ListView) rootView.findViewById(R.id.list_view_active_lists);
         mListViewTitle = (TextView) rootView.findViewById(R.id.text_view_list_name);
+        mCreatedby = (TextView) rootView.findViewById(R.id.created_by);
+        mOwner = (TextView) rootView.findViewById(R.id.owner);
     }
 }

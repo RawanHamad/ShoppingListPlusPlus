@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.google.firebase.database.DatabaseReference;
 import com.rawan.android.shoppinglist.R;
+import com.rawan.android.shoppinglist.model.ShoppingList;
 
 import static com.rawan.android.shoppinglist.ShoppingListApplication.database;
 
@@ -28,6 +29,7 @@ import static com.rawan.android.shoppinglist.ShoppingListApplication.database;
 public class AddListDialogFragment extends DialogFragment {
     EditText mEditTextListName;
     private DatabaseReference myRef;
+    public static final String ANONYMOUS = "anonymous";
 
     /**
      * Public static constructor that creates fragment and
@@ -66,9 +68,7 @@ public class AddListDialogFragment extends DialogFragment {
         View rootView = inflater.inflate(R.layout.dialog_add_list, null);
 
         // Initialize Firebase instances
-        myRef = database.getReference("listName");
-
-
+        myRef = database.getReference("activeList");
         mEditTextListName = (EditText) rootView.findViewById(R.id.edit_text_list_name);
 
         /**
@@ -103,7 +103,8 @@ public class AddListDialogFragment extends DialogFragment {
      */
     public void addShoppingList() {
         String userEntry = mEditTextListName.getText().toString();
-        myRef.setValue(userEntry);
+        ShoppingList shoppingList = new ShoppingList(userEntry,ANONYMOUS);
+        myRef.setValue(shoppingList);
     }
 
 }
