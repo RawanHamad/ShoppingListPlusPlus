@@ -11,9 +11,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
 
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+//import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
+//import com.google.android.gms.common.api.GoogleApiClient;
 import com.rawan.android.shoppinglist.R;
 
 /**
@@ -21,19 +21,18 @@ import com.rawan.android.shoppinglist.R;
  * It implements GoogleApiClient callbacks to enable "Logout" in all activities
  * and defines variables that are being shared across all activities
  */
-public abstract class BaseActivity extends AppCompatActivity implements
-        GoogleApiClient.OnConnectionFailedListener {
+public abstract class BaseActivity extends AppCompatActivity /*implements GoogleApiClient.OnConnectionFailedListener*/ {
 
-    protected GoogleApiClient mGoogleApiClient;
+   // protected GoogleApiClient mGoogleApiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        /* Setup the Google API object to allow Google logins */
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .build();
+//        /* Setup the Google API object to allow Google logins */
+//        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+//                .requestEmail()
+//                .build();
 
         /**
          * Build a GoogleApiClient with access to the Google Sign-In API and the
@@ -85,9 +84,9 @@ public abstract class BaseActivity extends AppCompatActivity implements
         }
     }
 
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-    }
+//    @Override
+//    public void onConnectionFailed(ConnectionResult connectionResult) {
+//    }
 
 
 }

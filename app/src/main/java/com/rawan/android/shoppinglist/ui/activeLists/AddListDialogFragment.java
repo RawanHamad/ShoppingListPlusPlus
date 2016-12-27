@@ -17,13 +17,17 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.firebase.database.DatabaseReference;
 import com.rawan.android.shoppinglist.R;
+
+import static com.rawan.android.shoppinglist.ShoppingListApplication.database;
 
 /**
  * Adds a new shopping list
  */
 public class AddListDialogFragment extends DialogFragment {
     EditText mEditTextListName;
+    private DatabaseReference myRef;
 
     /**
      * Public static constructor that creates fragment and
@@ -60,6 +64,11 @@ public class AddListDialogFragment extends DialogFragment {
         // Get the layout inflater
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View rootView = inflater.inflate(R.layout.dialog_add_list, null);
+
+        // Initialize Firebase instances
+        myRef = database.getReference("listName");
+
+
         mEditTextListName = (EditText) rootView.findViewById(R.id.edit_text_list_name);
 
         /**
@@ -93,7 +102,8 @@ public class AddListDialogFragment extends DialogFragment {
      * Add new active list
      */
     public void addShoppingList() {
-
+        String userEntry = mEditTextListName.getText().toString();
+        myRef.setValue(userEntry);
     }
 
 }
