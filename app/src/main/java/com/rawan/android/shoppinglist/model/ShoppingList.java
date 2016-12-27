@@ -15,18 +15,20 @@ public class ShoppingList {
     private String listName;
     private String owner;
     private HashMap<String, Object> timestampLastChanged;
+    private HashMap<String, Object> timestampCreated;
 
     //at least one empty constructor
     public ShoppingList() {
+        // Default constructor required for calls to DataSnapshot.getValue()
     }
 
-    public ShoppingList(String listName, String owner) {
+    public ShoppingList(String listName, String owner, HashMap<String, Object> timestampCreated) {
         this.listName = listName;
         this.owner = owner;
-
-        HashMap<String, Object> timestampLastChangedObj = new HashMap<String, Object>();
-        timestampLastChangedObj.put(Constants.FIREBASE_PROPERTY_TIMESTAMP, ServerValue.TIMESTAMP);
-        this.timestampLastChanged = timestampLastChangedObj;
+        this.timestampCreated = timestampCreated;
+        HashMap<String, Object> timestampNowObject = new HashMap<String, Object>();
+        timestampNowObject.put(Constants.FIREBASE_PROPERTY_TIMESTAMP, ServerValue.TIMESTAMP);
+        this.timestampLastChanged = timestampNowObject;
     }
 
     public String getListName() {
@@ -53,5 +55,17 @@ public class ShoppingList {
     @Exclude
     public long getTimestampLastChangedLong() {
         return (long) timestampLastChanged.get(Constants.FIREBASE_PROPERTY_TIMESTAMP);
+    }
+
+
+    public HashMap<String, Object> getTimestampCreated() {
+        return timestampCreated;
+    }
+
+
+    @Exclude
+    public long getTimestampCreatedLong() {
+        return (long) timestampLastChanged.get(Constants.FIREBASE_PROPERTY_TIMESTAMP);
+
     }
 }

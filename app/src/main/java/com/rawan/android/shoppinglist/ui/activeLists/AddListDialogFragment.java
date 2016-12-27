@@ -18,8 +18,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ServerValue;
 import com.rawan.android.shoppinglist.R;
 import com.rawan.android.shoppinglist.model.ShoppingList;
+import com.rawan.android.shoppinglist.utils.Constants;
+
+import java.util.HashMap;
 
 import static com.rawan.android.shoppinglist.ShoppingListApplication.database;
 
@@ -68,7 +72,7 @@ public class AddListDialogFragment extends DialogFragment {
         View rootView = inflater.inflate(R.layout.dialog_add_list, null);
 
         // Initialize Firebase instances
-        myRef = database.getReference("activeList");
+        myRef = database.getReference(Constants.FIREBASE_LOCATION_ACTIVE_LIST);
         mEditTextListName = (EditText) rootView.findViewById(R.id.edit_text_list_name);
 
         /**
@@ -103,8 +107,36 @@ public class AddListDialogFragment extends DialogFragment {
      */
     public void addShoppingList() {
         String userEntry = mEditTextListName.getText().toString();
-        ShoppingList shoppingList = new ShoppingList(userEntry,ANONYMOUS);
-        myRef.setValue(shoppingList);
+
+
+        if (!userEntry.equals("")) {
+
+            /**
+             * Create Firebase references
+             */
+            DatabaseReference listsRef = database.getReference(Constants.FIREBASE_LOCATION_ACTIVE_LISTS);
+            DatabaseReference newListRef = listsRef.push();
+
+           /* Save listsRef.push() to maintain same random Id */
+            final String listId = newListRef.getKey();
+
+            /**
+             * Set raw version of date to the ServerValue.TIMESTAMP value and save into
+             * timestampCreatedMap
+             */
+            HashMap<String, Object> timestampCreated = new HashMap<>();
+            timestampCreated.put(Constants.FIREBASE_PROPERTY_TIMESTAMP, ServerValue.TIMESTAMP);
+
+            /* Build the shopping list */
+            ShoppingList newShoppingList = new ShoppingList(userEntry, ANONYMOUS, timestampCreated);
+
+            /* Add the shopping list */
+            newListRef.setValue(newShoppingList);
+
+            /* Close the dialog fragment */
+            AddListDialogFragment.this.getDialog().cancel();
+        }
+
     }
 
 }

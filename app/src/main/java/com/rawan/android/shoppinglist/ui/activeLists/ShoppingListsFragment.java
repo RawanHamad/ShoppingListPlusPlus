@@ -5,6 +5,7 @@ package com.rawan.android.shoppinglist.ui.activeLists;
  */
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -21,6 +22,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.rawan.android.shoppinglist.R;
 import com.rawan.android.shoppinglist.model.ShoppingList;
+import com.rawan.android.shoppinglist.ui.activeListDetails.ActiveListDetailsActivity;
+import com.rawan.android.shoppinglist.utils.Constants;
 import com.rawan.android.shoppinglist.utils.Utils;
 
 import java.util.Date;
@@ -81,7 +84,7 @@ public class ShoppingListsFragment extends Fragment {
         initializeScreen(rootView);
 
 
-        DatabaseReference myRef = database.getReference("activeList");
+        DatabaseReference myRef = database.getReference(Constants.FIREBASE_LOCATION_ACTIVE_LIST);
 
         // Read from the database
         myRef.addValueEventListener(new ValueEventListener() {
@@ -97,9 +100,7 @@ public class ShoppingListsFragment extends Fragment {
                         mOwner.setText(shoppingListValue.getOwner());
                     }
                     if (shoppingListValue.getTimestampLastChanged() != null) {
-                        mTextViewEditTime.setText(
-                                Utils.SIMPLE_DATE_FORMAT.format(
-                                        new Date(shoppingListValue.getTimestampLastChangedLong())));
+                        mTextViewEditTime.setText(Utils.SIMPLE_DATE_FORMAT.format(new Date(shoppingListValue.getTimestampLastChangedLong())));
                     } else {
                         mTextViewEditTime.setText("");
                     }
@@ -115,6 +116,13 @@ public class ShoppingListsFragment extends Fragment {
             }
         });
 
+
+        mListViewTitle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getActivity(),ActiveListDetailsActivity.class));
+            }
+        });
 
         /**
          * Set interactive bits, such as click events and adapters
