@@ -21,6 +21,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.rawan.android.shoppinglist.R;
 import com.rawan.android.shoppinglist.model.ShoppingList;
+import com.rawan.android.shoppinglist.utils.Utils;
+
+import java.util.Date;
 
 import static com.google.android.gms.internal.zzs.TAG;
 import static com.rawan.android.shoppinglist.ShoppingListApplication.database;
@@ -35,6 +38,7 @@ public class ShoppingListsFragment extends Fragment {
     private TextView mListViewTitle;
     private TextView mCreatedby;
     private TextView mOwner;
+    private TextView mTextViewEditTime;
 
     public ShoppingListsFragment() {
         /* Required empty public constructor */
@@ -92,6 +96,13 @@ public class ShoppingListsFragment extends Fragment {
                         mCreatedby.setVisibility(View.VISIBLE);
                         mOwner.setText(shoppingListValue.getOwner());
                     }
+                    if (shoppingListValue.getTimestampLastChanged() != null) {
+                        mTextViewEditTime.setText(
+                                Utils.SIMPLE_DATE_FORMAT.format(
+                                        new Date(shoppingListValue.getTimestampLastChangedLong())));
+                    } else {
+                        mTextViewEditTime.setText("");
+                    }
                 }
 
                 Log.d(TAG, "Value is: " + shoppingListValue);
@@ -132,5 +143,6 @@ public class ShoppingListsFragment extends Fragment {
         mListViewTitle = (TextView) rootView.findViewById(R.id.text_view_list_name);
         mCreatedby = (TextView) rootView.findViewById(R.id.created_by);
         mOwner = (TextView) rootView.findViewById(R.id.owner);
+        mTextViewEditTime = (TextView) rootView.findViewById(R.id.text_view_edit_time);
     }
 }
