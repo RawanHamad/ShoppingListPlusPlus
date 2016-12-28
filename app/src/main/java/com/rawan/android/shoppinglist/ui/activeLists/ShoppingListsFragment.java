@@ -38,10 +38,12 @@ import static com.rawan.android.shoppinglist.ShoppingListApplication.database;
  */
 public class ShoppingListsFragment extends Fragment {
     private ListView mListView;
-    private TextView mListViewTitle;
-    private TextView mCreatedby;
-    private TextView mOwner;
-    private TextView mTextViewEditTime;
+//    private TextView mListViewTitle;
+//    private TextView mCreatedby;
+    //private TextView mOwner;
+    //  private TextView mTextViewEditTime;
+
+    private ActiveListAdapter mActiveListAdapter;
 
     public ShoppingListsFragment() {
         /* Required empty public constructor */
@@ -84,45 +86,48 @@ public class ShoppingListsFragment extends Fragment {
         initializeScreen(rootView);
 
 
-        DatabaseReference myRef = database.getReference(Constants.FIREBASE_LOCATION_ACTIVE_LIST);
+        DatabaseReference myRef = database.getReference(Constants.FIREBASE_LOCATION_ACTIVE_LISTS);
 
-        // Read from the database
-        myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                ShoppingList shoppingListValue = dataSnapshot.getValue(ShoppingList.class);
-                if (shoppingListValue != null) {
-                    mListViewTitle.setText(shoppingListValue.getListName());
-                    if (shoppingListValue.getOwner() != null) {
-                        mCreatedby.setVisibility(View.VISIBLE);
-                        mOwner.setText(shoppingListValue.getOwner());
-                    }
-                    if (shoppingListValue.getTimestampLastChanged() != null) {
-                        mTextViewEditTime.setText(Utils.SIMPLE_DATE_FORMAT.format(new Date(shoppingListValue.getTimestampLastChangedLong())));
-                    } else {
-                        mTextViewEditTime.setText("");
-                    }
-                }
+//        // Read from the database
+//        myRef.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                // This method is called once with the initial value and again
+//                // whenever data at this location is updated.
+//                ShoppingList shoppingListValue = dataSnapshot.getValue(ShoppingList.class);
+//                if (shoppingListValue != null) {
+//                    mListViewTitle.setText(shoppingListValue.getListName());
+//                    if (shoppingListValue.getOwner() != null) {
+//                        mCreatedby.setVisibility(View.VISIBLE);
+//                        mOwner.setText(shoppingListValue.getOwner());
+//                    }
+//                    if (shoppingListValue.getTimestampLastChanged() != null) {
+//                        mTextViewEditTime.setText(Utils.SIMPLE_DATE_FORMAT.format(new Date(shoppingListValue.getTimestampLastChangedLong())));
+//                    } else {
+//                        mTextViewEditTime.setText("");
+//                    }
+//                }
+//
+//                Log.d(TAG, "Value is: " + shoppingListValue);
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError error) {
+//                // Failed to read value
+//                Log.w(TAG, "Failed to read value.", error.toException());
+//            }
+//        });
 
-                Log.d(TAG, "Value is: " + shoppingListValue);
-            }
 
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.w(TAG, "Failed to read value.", error.toException());
-            }
-        });
+        mActiveListAdapter = new ActiveListAdapter(getActivity(), ShoppingList.class, R.layout.single_active_list, myRef);
+        mListView.setAdapter(mActiveListAdapter);
 
-
-        mListViewTitle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(getActivity(),ActiveListDetailsActivity.class));
-            }
-        });
+//        mListViewTitle.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                startActivity(new Intent(getActivity(), ActiveListDetailsActivity.class));
+//            }
+//        });
 
         /**
          * Set interactive bits, such as click events and adapters
@@ -140,6 +145,7 @@ public class ShoppingListsFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mActiveListAdapter.cleanup();
     }
 
 
@@ -148,9 +154,9 @@ public class ShoppingListsFragment extends Fragment {
      */
     private void initializeScreen(View rootView) {
         mListView = (ListView) rootView.findViewById(R.id.list_view_active_lists);
-        mListViewTitle = (TextView) rootView.findViewById(R.id.text_view_list_name);
-        mCreatedby = (TextView) rootView.findViewById(R.id.created_by);
-        mOwner = (TextView) rootView.findViewById(R.id.owner);
-        mTextViewEditTime = (TextView) rootView.findViewById(R.id.text_view_edit_time);
+//        mListViewTitle = (TextView) rootView.findViewById(R.id.text_view_list_name);
+//        mCreatedby = (TextView) rootView.findViewById(R.id.created_by);
+//        mOwner = (TextView) rootView.findViewById(R.id.owner);
+//        mTextViewEditTime = (TextView) rootView.findViewById(R.id.text_view_edit_time);
     }
 }

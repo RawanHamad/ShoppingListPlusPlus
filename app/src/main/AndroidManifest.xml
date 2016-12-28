@@ -6,7 +6,7 @@
         android:name=".ShoppingListApplication"
         android:allowBackup="true"
         android:label="@string/app_name"
-        android:supportsRtl="true"
+        android:supportsRtl="false"
         android:theme="@style/AppTheme">
         <activity android:name=".ui.MainActivity">
             <intent-filter>
