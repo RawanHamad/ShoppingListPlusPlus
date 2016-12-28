@@ -5,11 +5,16 @@ import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.rawan.android.shoppinglist.R;
 import com.rawan.android.shoppinglist.model.ShoppingList;
 import com.rawan.android.shoppinglist.utils.Constants;
+
+import java.util.HashMap;
 
 import static com.rawan.android.shoppinglist.ShoppingListApplication.database;
 
@@ -65,10 +70,35 @@ public class RemoveListDialogFragment extends DialogFragment {
     }
 
     private void removeList() {
-        /* Get the location to remove from */
-        DatabaseReference listToRemoveRef = database.getReference(Constants.FIREBASE_LOCATION_ACTIVE_LISTS).child(mListId);
-        /* Remove the value */
-        listToRemoveRef.removeValue();
+
+
+        /**
+         * Create map and fill it in with deep path multi write operations list
+         */
+        HashMap<String, Object> removeListData = new HashMap<String, Object>();
+
+        removeListData.put("/" + Constants.FIREBASE_LOCATION_ACTIVE_LISTS + "/"
+                + mListId, null);
+        removeListData.put("/" + Constants.FIREBASE_LOCATION_SHOPPING_LIST_ITEMS + "/"
+                + mListId, null);
+
+
+        DatabaseReference firebaseRef = FirebaseDatabase.getInstance().getReferenceFromUrl(Constants.FIREBASE_URL);
+
+       /* Do a deep-path update */
+        firebaseRef.updateChildren(removeListData, new DatabaseReference.CompletionListener() {
+
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+
+                if (databaseError != null) {
+
+                    Log.e(LOG_TAG, getString(R.string.log_error_updating_data) + databaseError.getMessage());
+
+                }
+            }
+
+        });
 
     }
 

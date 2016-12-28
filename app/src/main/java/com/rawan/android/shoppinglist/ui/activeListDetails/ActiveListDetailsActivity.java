@@ -17,6 +17,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.rawan.android.shoppinglist.R;
 import com.rawan.android.shoppinglist.model.ShoppingList;
+import com.rawan.android.shoppinglist.model.ShoppingListItem;
 import com.rawan.android.shoppinglist.ui.BaseActivity;
 import com.rawan.android.shoppinglist.utils.Constants;
 
@@ -33,6 +34,7 @@ public class ActiveListDetailsActivity extends BaseActivity {
     private ListView mListView;
     private String mListId;
     private ShoppingList mShoppingList;
+    private ActiveListItemAdapter mActiveListItemAdapter;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -47,10 +49,24 @@ public class ActiveListDetailsActivity extends BaseActivity {
             return;
         }
         mActiveListRef = database.getReference(Constants.FIREBASE_LOCATION_ACTIVE_LISTS).child(mListId);
+        DatabaseReference listItemsRef = database.getReference(Constants.FIREBASE_LOCATION_SHOPPING_LIST_ITEMS).child(mListId);
         /**
          * Link layout elements from XML and setup the toolbar
          */
         initializeScreen();
+
+
+        /**
+         * Setup the adapter
+         */
+        mActiveListItemAdapter = new ActiveListItemAdapter(this, ShoppingListItem.class, R.layout.single_active_list_item, listItemsRef);
+               /* Create ActiveListItemAdapter and set to listView */
+        mListView.setAdapter(mActiveListItemAdapter);
+
+        /**
+         * Add ValueEventListeners to Firebase references
+         * to control get data and control behavior and visibility of elements
+         */
 
 
         mActiveListRef.addValueEventListener(new ValueEventListener() {
@@ -176,6 +192,7 @@ public class ActiveListDetailsActivity extends BaseActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mActiveListItemAdapter.cleanup();
     }
 
     /**

@@ -32,7 +32,6 @@ import static com.rawan.android.shoppinglist.ShoppingListApplication.database;
  */
 public class AddListDialogFragment extends DialogFragment {
     EditText mEditTextListName;
-    private DatabaseReference myRef;
     public static final String ANONYMOUS = "anonymous";
 
     /**
@@ -72,7 +71,6 @@ public class AddListDialogFragment extends DialogFragment {
         View rootView = inflater.inflate(R.layout.dialog_add_list, null);
 
         // Initialize Firebase instances
-        myRef = database.getReference(Constants.FIREBASE_LOCATION_ACTIVE_LIST);
         mEditTextListName = (EditText) rootView.findViewById(R.id.edit_text_list_name);
 
         /**
