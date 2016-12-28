@@ -16,8 +16,7 @@ public final class Constants {
     public static final String FIREBASE_PROPERTY_TIMESTAMP = "timestamp";
     public static final String FIREBASE_PROPERTY_TIMESTAMP_LAST_CHANGED = "timestampLastChanged";
 
-
-
+    public static final String KEY_LIST_ID = "LIST_ID";
     public static final String FIREBASE_LOCATION_ACTIVE_LIST = "activeList";
     public static final String FIREBASE_LOCATION_ACTIVE_LISTS = "activeLists";
 

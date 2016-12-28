@@ -8,27 +8,16 @@ package com.rawan.android.shoppinglist.ui.activeLists;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
-
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
 import com.rawan.android.shoppinglist.R;
 import com.rawan.android.shoppinglist.model.ShoppingList;
 import com.rawan.android.shoppinglist.ui.activeListDetails.ActiveListDetailsActivity;
 import com.rawan.android.shoppinglist.utils.Constants;
-import com.rawan.android.shoppinglist.utils.Utils;
-
-import java.util.Date;
-
-import static com.google.android.gms.internal.zzs.TAG;
 import static com.rawan.android.shoppinglist.ShoppingListApplication.database;
 
 /**
@@ -38,10 +27,7 @@ import static com.rawan.android.shoppinglist.ShoppingListApplication.database;
  */
 public class ShoppingListsFragment extends Fragment {
     private ListView mListView;
-//    private TextView mListViewTitle;
-//    private TextView mCreatedby;
-    //private TextView mOwner;
-    //  private TextView mTextViewEditTime;
+
 
     private ActiveListAdapter mActiveListAdapter;
 
@@ -88,46 +74,11 @@ public class ShoppingListsFragment extends Fragment {
 
         DatabaseReference myRef = database.getReference(Constants.FIREBASE_LOCATION_ACTIVE_LISTS);
 
-//        // Read from the database
-//        myRef.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                // This method is called once with the initial value and again
-//                // whenever data at this location is updated.
-//                ShoppingList shoppingListValue = dataSnapshot.getValue(ShoppingList.class);
-//                if (shoppingListValue != null) {
-//                    mListViewTitle.setText(shoppingListValue.getListName());
-//                    if (shoppingListValue.getOwner() != null) {
-//                        mCreatedby.setVisibility(View.VISIBLE);
-//                        mOwner.setText(shoppingListValue.getOwner());
-//                    }
-//                    if (shoppingListValue.getTimestampLastChanged() != null) {
-//                        mTextViewEditTime.setText(Utils.SIMPLE_DATE_FORMAT.format(new Date(shoppingListValue.getTimestampLastChangedLong())));
-//                    } else {
-//                        mTextViewEditTime.setText("");
-//                    }
-//                }
-//
-//                Log.d(TAG, "Value is: " + shoppingListValue);
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError error) {
-//                // Failed to read value
-//                Log.w(TAG, "Failed to read value.", error.toException());
-//            }
-//        });
 
 
         mActiveListAdapter = new ActiveListAdapter(getActivity(), ShoppingList.class, R.layout.single_active_list, myRef);
         mListView.setAdapter(mActiveListAdapter);
 
-//        mListViewTitle.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                startActivity(new Intent(getActivity(), ActiveListDetailsActivity.class));
-//            }
-//        });
 
         /**
          * Set interactive bits, such as click events and adapters
@@ -135,6 +86,17 @@ public class ShoppingListsFragment extends Fragment {
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                ShoppingList selectedList = mActiveListAdapter.getItem(position);
+                if (selectedList != null) {
+                    Intent intent = new Intent(getActivity(), ActiveListDetailsActivity.class);
+                                   /* Get the list ID using the adapter's get ref method to get the Firebase
++                     * ref and then grab the key.
++                     */
+                    String listId = mActiveListAdapter.getRef(position).getKey();
+                    intent.putExtra(Constants.KEY_LIST_ID, listId);
+                                   /* Starts an active showing the details for the selected list */
+                    startActivity(intent);
+                }
 
             }
         });
@@ -154,9 +116,5 @@ public class ShoppingListsFragment extends Fragment {
      */
     private void initializeScreen(View rootView) {
         mListView = (ListView) rootView.findViewById(R.id.list_view_active_lists);
-//        mListViewTitle = (TextView) rootView.findViewById(R.id.text_view_list_name);
-//        mCreatedby = (TextView) rootView.findViewById(R.id.created_by);
-//        mOwner = (TextView) rootView.findViewById(R.id.owner);
-//        mTextViewEditTime = (TextView) rootView.findViewById(R.id.text_view_edit_time);
     }
 }
