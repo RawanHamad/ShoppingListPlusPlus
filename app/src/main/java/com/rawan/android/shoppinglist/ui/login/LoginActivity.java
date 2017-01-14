@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -21,14 +22,16 @@ import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.rawan.android.shoppinglist.R;
 import com.rawan.android.shoppinglist.ui.BaseActivity;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.rawan.android.shoppinglist.ui.MainActivity;
 
 import java.io.IOException;
 
@@ -41,6 +44,8 @@ public class LoginActivity extends BaseActivity {
     /* A dialog that is presented until the Firebase authentication finished. */
     private ProgressDialog mAuthProgressDialog;
     private EditText mEditTextEmailInput, mEditTextPasswordInput;
+    private FirebaseAuth mAuth;
+
 
     /**
      * Variables related to Google Login
@@ -55,12 +60,24 @@ public class LoginActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Get Firebase auth instance
+        mAuth = FirebaseAuth.getInstance();
+
+        if (mAuth.getCurrentUser() != null) {
+            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            finish();
+        }
+
+
         setContentView(R.layout.activity_login);
 
         /**
          * Link layout elements from XML and setup progress dialog
          */
         initializeScreen();
+
+
 
         /**
          * Call signInPassword() when user taps "Done" keyboard action
@@ -134,11 +151,55 @@ public class LoginActivity extends BaseActivity {
      * Sign in with Password provider (used when user taps "Done" action on keyboard)
      */
     public void signInPassword() {
+
+        String email = mEditTextEmailInput.getText().toString();
+        final String password = mEditTextPasswordInput.getText().toString();
+
+        /**
+         * If email and password are not empty show progress dialog and try to authenticate
+         */
+        if (email.equals("")) {
+            mEditTextEmailInput.setError(getString(R.string.error_cannot_be_empty));
+            return;
+        }
+
+        if (password.equals("")) {
+            mEditTextPasswordInput.setError(getString(R.string.error_cannot_be_empty));
+            return;
+        }
+        mAuthProgressDialog.show();
+
+        //authenticate user
+        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        // If sign in fails, display a message to the user. If sign in succeeds
+                        // the auth state listener will be notified and logic to handle the
+                        // signed in user can be handled in the listener.
+                        if (!task.isSuccessful()) {
+                            // there was an error
+                            if (password.length() < 6) {
+                                mEditTextPasswordInput.setError(getString(R.string.minimum_password));
+                            } else {
+                                Toast.makeText(LoginActivity.this, getString(R.string.auth_failed), Toast.LENGTH_LONG).show();
+                            }
+                        } else {
+                            /* Go to main activity */
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
+                            finish();
+                        }
+                    }
+                });
+
     }
+
 
     /**
      * Helper method that makes sure a user is created if the user
      * logs in with Firebase's email/password provider.
+     *
      * @param authData AuthData object returned from onAuthenticated
      */
     private void setAuthenticatedUserPasswordProvider(FirebaseAuth authData) {
@@ -147,9 +208,10 @@ public class LoginActivity extends BaseActivity {
     /**
      * Helper method that makes sure a user is created if the user
      * logs in with Firebase's Google login provider.
+     *
      * @param authData AuthData object returned from onAuthenticated
      */
-    private void setAuthenticatedUserGoogle(FirebaseAuth authData){
+    private void setAuthenticatedUserGoogle(FirebaseAuth authData) {
 
     }
 
@@ -163,6 +225,7 @@ public class LoginActivity extends BaseActivity {
 
     /**
      * Signs you into ShoppingList++ using the Google Login Provider
+     *
      * @param token A Google OAuth access token returned from Google
      */
     private void loginWithGoogle(String token) {
@@ -170,17 +233,17 @@ public class LoginActivity extends BaseActivity {
 
     /**
      * GOOGLE SIGN IN CODE
-     *
+     * <p>
      * This code is mostly boiler plate from
      * https://developers.google.com/identity/sign-in/android/start-integrating
      * and
      * https://github.com/googlesamples/google-services/blob/master/android/signin/app/src/main/java/com/google/samples/quickstart/signin/SignInActivity.java
-     *
+     * <p>
      * The big picture steps are:
      * 1. User clicks the sign in with Google button
      * 2. An intent is started for sign in.
-     *      - If the connection fails it is caught in the onConnectionFailed callback
-     *      - If it finishes, onActivityResult is called with the correct request code.
+     * - If the connection fails it is caught in the onConnectionFailed callback
+     * - If it finishes, onActivityResult is called with the correct request code.
      * 3. If the sign in was successful, set the mGoogleAccount to the current account and
      * then call get GoogleOAuthTokenAndLogin
      * 4. getGoogleOAuthTokenAndLogin launches an AsyncTask to get an OAuth2 token from Google.
@@ -191,7 +254,7 @@ public class LoginActivity extends BaseActivity {
 
     /* Sets up the Google Sign In Button : https://developers.google.com/android/reference/com/google/android/gms/common/SignInButton */
     private void setupGoogleSignIn() {
-        SignInButton signInButton = (SignInButton)findViewById(R.id.login_with_google);
+        SignInButton signInButton = (SignInButton) findViewById(R.id.login_with_google);
         signInButton.setSize(SignInButton.SIZE_WIDE);
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override

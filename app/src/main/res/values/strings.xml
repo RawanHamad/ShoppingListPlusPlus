@@ -211,4 +211,6 @@
     <string name="sort_by_list_name_value">listName</string>
     <string name="sort_by_owner_value">owner</string>
     <string name="sort_by_most_recently_changed_value">timestampLastChangedReverse/timestamp</string>
+    <string name="minimum_password">Minimum Password Length must be 6</string>
+    <string name="auth_failed">Authentication failed, check your email and password or sign up</string>
 </resources>
