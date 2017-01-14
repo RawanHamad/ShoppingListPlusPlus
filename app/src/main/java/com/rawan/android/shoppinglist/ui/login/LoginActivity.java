@@ -44,8 +44,7 @@ import java.io.IOException;
 /**
  * Created by Rawan on 1/5/17.
  */
-public class LoginActivity extends BaseActivity implements
-        GoogleApiClient.OnConnectionFailedListener {
+public class LoginActivity extends BaseActivity  {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
     /* A dialog that is presented until the Firebase authentication finished. */
@@ -53,7 +52,6 @@ public class LoginActivity extends BaseActivity implements
     private EditText mEditTextEmailInput, mEditTextPasswordInput;
     private FirebaseAuth mAuth;
 
-    private GoogleApiClient mGoogleApiClient;
     // [START declare_auth_listener]
     private FirebaseAuth.AuthStateListener mAuthListener;
 
@@ -106,7 +104,6 @@ public class LoginActivity extends BaseActivity implements
          */
         initializeScreen();
 
-        initlizeGoogleSinin();
 
 
         /**
@@ -124,22 +121,6 @@ public class LoginActivity extends BaseActivity implements
         });
     }
 
-    private void initlizeGoogleSinin() {
-        // [START config_signin]
-        // Configure Google Sign In
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-        // [END config_signin]
-
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
-                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .build();
-
-    }
 
     // [START on_start_add_listener]
     @Override
@@ -415,7 +396,6 @@ public class LoginActivity extends BaseActivity implements
                             finish();
 
                         }
-                        // ...
                     }
                 });
     }
