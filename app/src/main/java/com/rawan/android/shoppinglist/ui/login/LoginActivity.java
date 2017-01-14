@@ -20,14 +20,18 @@ import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseUser;
 import com.rawan.android.shoppinglist.R;
 import com.rawan.android.shoppinglist.ui.BaseActivity;
 import com.google.firebase.auth.FirebaseAuth;
@@ -38,13 +42,19 @@ import java.io.IOException;
 /**
  * Created by Rawan on 1/5/17.
  */
-public class LoginActivity extends BaseActivity {
+public class LoginActivity extends BaseActivity implements
+        GoogleApiClient.OnConnectionFailedListener {
 
-    private static final String LOG_TAG = LoginActivity.class.getSimpleName();
+    private static final String TAG = LoginActivity.class.getSimpleName();
     /* A dialog that is presented until the Firebase authentication finished. */
     private ProgressDialog mAuthProgressDialog;
     private EditText mEditTextEmailInput, mEditTextPasswordInput;
     private FirebaseAuth mAuth;
+
+    private static final int RC_SIGN_IN = 9001;
+    private GoogleApiClient mGoogleApiClient;
+    // [START declare_auth_listener]
+    private FirebaseAuth.AuthStateListener mAuthListener;
 
 
     /**
@@ -63,6 +73,24 @@ public class LoginActivity extends BaseActivity {
 
         //Get Firebase auth instance
         mAuth = FirebaseAuth.getInstance();
+        // [START auth_state_listener]
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    // User is signed in
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                } else {
+                    // User is signed out
+                    Log.d(TAG, "onAuthStateChanged:signed_out");
+                }
+//                // [START_EXCLUDE]
+//                updateUI(user);
+//                // [END_EXCLUDE]
+            }
+        };
+        // [END auth_state_listener]
 
         if (mAuth.getCurrentUser() != null) {
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
@@ -77,6 +105,7 @@ public class LoginActivity extends BaseActivity {
          */
         initializeScreen();
 
+        initlizeGoogleSinin();
 
 
         /**
@@ -93,6 +122,42 @@ public class LoginActivity extends BaseActivity {
             }
         });
     }
+
+    private void initlizeGoogleSinin() {
+        // [START config_signin]
+        // Configure Google Sign In
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        // [END config_signin]
+
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+
+    }
+
+    // [START on_start_add_listener]
+    @Override
+    public void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+    }
+    // [END on_start_add_listener]
+
+    // [START on_stop_remove_listener]
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
+    // [END on_stop_remove_listener]
+
 
     @Override
     protected void onResume() {
@@ -171,27 +236,27 @@ public class LoginActivity extends BaseActivity {
 
         //authenticate user
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        // If sign in fails, display a message to the user. If sign in succeeds
-                        // the auth state listener will be notified and logic to handle the
-                        // signed in user can be handled in the listener.
-                        if (!task.isSuccessful()) {
-                            // there was an error
-                            if (password.length() < 6) {
-                                mEditTextPasswordInput.setError(getString(R.string.minimum_password));
-                            } else {
-                                Toast.makeText(LoginActivity.this, getString(R.string.auth_failed), Toast.LENGTH_LONG).show();
-                            }
-                        } else {
-                            /* Go to main activity */
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(intent);
-                            finish();
-                        }
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                // If sign in fails, display a message to the user. If sign in succeeds
+                // the auth state listener will be notified and logic to handle the
+                // signed in user can be handled in the listener.
+                if (!task.isSuccessful()) {
+                    // there was an error
+                    if (password.length() < 6) {
+                        mEditTextPasswordInput.setError(getString(R.string.minimum_password));
+                    } else {
+                        Toast.makeText(LoginActivity.this, getString(R.string.auth_failed), Toast.LENGTH_LONG).show();
                     }
-                });
+                } else {
+                            /* Go to main activity */
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+        });
 
     }
 
@@ -273,17 +338,24 @@ public class LoginActivity extends BaseActivity {
 //        mAuthProgressDialog.show();
 
     }
-//
-//    @Override
-//    public void onConnectionFailed(ConnectionResult result) {
-//        /**
-//         * An unresolvable error has occurred and Google APIs (including Sign-In) will not
-//         * be available.
-//         */
-//        mAuthProgressDialog.dismiss();
-//        showErrorToast(result.toString());
-//    }
 
+    //
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+        /**
+         * An unresolvable error has occurred and Google APIs (including Sign-In) will not
+         * be available.
+         */
+        mAuthProgressDialog.dismiss();
+        showErrorToast(result.toString());
+    }
+
+
+    // [START signin]
+    private void signIn() {
+        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
 
     /**
      * This callback is triggered when any startActivityForResult finishes. The requestCode maps to
@@ -301,7 +373,7 @@ public class LoginActivity extends BaseActivity {
     }
 
     private void handleSignInResult(GoogleSignInResult result) {
-        Log.d(LOG_TAG, "handleSignInResult:" + result.isSuccess());
+        Log.d(TAG, "handleSignInResult:" + result.isSuccess());
         if (result.isSuccess()) {
             /* Signed in successfully, get the OAuth token */
             mGoogleAccount = result.getSignInAccount();
@@ -336,10 +408,10 @@ public class LoginActivity extends BaseActivity {
                     token = GoogleAuthUtil.getToken(LoginActivity.this, mGoogleAccount.getEmail(), scope);
                 } catch (IOException transientEx) {
                     /* Network or server error */
-                    Log.e(LOG_TAG, getString(R.string.google_error_auth_with_google) + transientEx);
+                    Log.e(TAG, getString(R.string.google_error_auth_with_google) + transientEx);
                     mErrorMessage = getString(R.string.google_error_network_error) + transientEx.getMessage();
                 } catch (UserRecoverableAuthException e) {
-                    Log.w(LOG_TAG, getString(R.string.google_error_recoverable_oauth_error) + e.toString());
+                    Log.w(TAG, getString(R.string.google_error_recoverable_oauth_error) + e.toString());
 
                     /* We probably need to ask for permissions, so start the intent if there is none pending */
                     if (!mGoogleIntentInProgress) {
@@ -350,7 +422,7 @@ public class LoginActivity extends BaseActivity {
                 } catch (GoogleAuthException authEx) {
                     /* The call is not ever expected to succeed assuming you have already verified that
                      * Google Play services is installed. */
-                    Log.e(LOG_TAG, " " + authEx.getMessage(), authEx);
+                    Log.e(TAG, " " + authEx.getMessage(), authEx);
                     mErrorMessage = getString(R.string.google_error_auth_with_google) + authEx.getMessage();
                 }
                 return token;
@@ -370,4 +442,6 @@ public class LoginActivity extends BaseActivity {
 
         task.execute();
     }
+
+
 }
